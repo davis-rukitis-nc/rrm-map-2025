@@ -89,7 +89,11 @@
 }
 
 .leaflet-popup-content-wrapper {
-  @apply !rounded-md !shadow-sm !px-2 !py-1;
+  @apply !rounded-md !shadow-sm !px-0 !py-0;
+}
+
+.leaflet-popup-content {
+  @apply !m-0 !text-sm !min-w-[150px];
 }
 
 .leaflet-popup-tip {

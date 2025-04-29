@@ -121,11 +121,11 @@ export default function KMLLayer({ url, showRoutes = true, showZones = true, sho
                 }}
               >
                 <Popup className="leaflet-popup-modern">
-                  <div className="p-1">
+                  <div className="p-3">
                     <h3 className="font-medium text-slate-800">{properties.name || `Point ${index + 1}`}</h3>
                     {properties.description && (
                       <div
-                        className="mt-1 max-h-[150px] overflow-y-auto text-sm text-slate-600"
+                        className="mt-2 max-h-[150px] overflow-y-auto text-sm text-slate-600"
                         dangerouslySetInnerHTML={{ __html: properties.description }}
                       />
                     )}
@@ -160,11 +160,11 @@ export default function KMLLayer({ url, showRoutes = true, showZones = true, sho
                 }}
               >
                 <Popup className="leaflet-popup-modern">
-                  <div className="p-1">
+                  <div className="p-3">
                     <h3 className="font-medium text-slate-800">{properties.name || `Route ${index + 1}`}</h3>
                     {properties.description && (
                       <div
-                        className="mt-1 max-h-[150px] overflow-y-auto text-sm text-slate-600"
+                        className="mt-2 max-h-[150px] overflow-y-auto text-sm text-slate-600"
                         dangerouslySetInnerHTML={{ __html: properties.description }}
                       />
                     )}
@@ -205,11 +205,11 @@ export default function KMLLayer({ url, showRoutes = true, showZones = true, sho
                 }}
               >
                 <Popup className="leaflet-popup-modern">
-                  <div className="p-1">
+                  <div className="p-3">
                     <h3 className="font-medium text-slate-800">{properties.name || `Zone ${index + 1}`}</h3>
                     {properties.description && (
                       <div
-                        className="mt-1 max-h-[150px] overflow-y-auto text-sm text-slate-600"
+                        className="mt-2 max-h-[150px] overflow-y-auto text-sm text-slate-600"
                         dangerouslySetInnerHTML={{ __html: properties.description }}
                       />
                     )}
