@@ -32,7 +32,7 @@ export default function Preloader({ isLoading, onAnimationComplete }: PreloaderP
         }
       }}
     >
-      <div className="relative flex flex-col items-center w-64 h-64 max-w-[90vw] max-h-[90vw]">
+      <div className="relative flex flex-col items-center max-w-[80vw] aspect-[350/109]">
         <motion.div
           initial={{ scale: 0.9, opacity: 0.5 }}
           animate={{ scale: [0.9, 1, 0.9], opacity: [0.7, 1, 0.7] }}
