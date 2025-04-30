@@ -330,7 +330,7 @@ function MapBoundaryControl() {
 
     // Set min/max zoom levels
     map.setMinZoom(11) // Prevent zooming out too far
-    map.setMaxZoom(18)
+    map.setMaxZoom(18.2)
 
     return () => {
       map.off("drag")
