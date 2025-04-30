@@ -44,6 +44,44 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Favicon */}
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="https://rimirigamarathon.com/wp-content/themes/maratons2020/assets/images/misc/apple-touch-icon.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="https://rimirigamarathon.com/wp-content/themes/maratons2020/assets/images/misc/favicon-32x32.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="https://rimirigamarathon.com/wp-content/themes/maratons2020/assets/images/misc/favicon-16x16.png"
+        />
+        <link
+          rel="manifest"
+          href="https://rimirigamarathon.com/wp-content/themes/maratons2020/assets/images/misc/site.webmanifest"
+        />
+        <link
+          rel="mask-icon"
+          href="https://rimirigamarathon.com/wp-content/themes/maratons2020/assets/images/misc/safari-pinned-tab.svg"
+          color="#5bbad5"
+        />
+        <link
+          rel="shortcut icon"
+          href="https://rimirigamarathon.com/wp-content/themes/maratons2020/assets/images/misc/favicon.ico"
+        />
+        <meta name="msapplication-TileColor" content="#dc2923" />
+        <meta
+          name="msapplication-config"
+          content="https://rimirigamarathon.com/wp-content/themes/maratons2020/assets/images/misc/browserconfig.xml"
+        />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>{children}</body>
     </html>
   )

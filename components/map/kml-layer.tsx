@@ -97,8 +97,8 @@ export default function KMLLayer({ url, showRoutes = true, showZones = true, sho
               icon = L.icon({
                 iconUrl: properties.icon,
                 iconSize: [24, 24], // Smaller icons
-                iconAnchor: [12, 24],
-                popupAnchor: [0, -24],
+                iconAnchor: [12, 12], // Center the icon
+                popupAnchor: [0, -12], // Position popup above the icon
               })
             }
 
@@ -120,15 +120,10 @@ export default function KMLLayer({ url, showRoutes = true, showZones = true, sho
                   },
                 }}
               >
-                <Popup className="leaflet-popup-modern">
-                  <div className="p-3">
-                    <h3 className="font-medium text-slate-800">{properties.name || `Point ${index + 1}`}</h3>
-                    {properties.description && (
-                      <div
-                        className="mt-2 max-h-[150px] overflow-y-auto text-sm text-slate-600"
-                        dangerouslySetInnerHTML={{ __html: properties.description }}
-                      />
-                    )}
+                <Popup className="centered-popup">
+                  <div className="custom-popup-content">
+                    <h3>{properties.name || `Point ${index + 1}`}</h3>
+                    {properties.description && <div dangerouslySetInnerHTML={{ __html: properties.description }} />}
                   </div>
                 </Popup>
               </Marker>
@@ -159,15 +154,10 @@ export default function KMLLayer({ url, showRoutes = true, showZones = true, sho
                   lineJoin: "round",
                 }}
               >
-                <Popup className="leaflet-popup-modern">
-                  <div className="p-3">
-                    <h3 className="font-medium text-slate-800">{properties.name || `Route ${index + 1}`}</h3>
-                    {properties.description && (
-                      <div
-                        className="mt-2 max-h-[150px] overflow-y-auto text-sm text-slate-600"
-                        dangerouslySetInnerHTML={{ __html: properties.description }}
-                      />
-                    )}
+                <Popup className="centered-popup">
+                  <div className="custom-popup-content">
+                    <h3>{properties.name || `Route ${index + 1}`}</h3>
+                    {properties.description && <div dangerouslySetInnerHTML={{ __html: properties.description }} />}
                   </div>
                 </Popup>
               </Polyline>
@@ -204,15 +194,10 @@ export default function KMLLayer({ url, showRoutes = true, showZones = true, sho
                   fillOpacity,
                 }}
               >
-                <Popup className="leaflet-popup-modern">
-                  <div className="p-3">
-                    <h3 className="font-medium text-slate-800">{properties.name || `Zone ${index + 1}`}</h3>
-                    {properties.description && (
-                      <div
-                        className="mt-2 max-h-[150px] overflow-y-auto text-sm text-slate-600"
-                        dangerouslySetInnerHTML={{ __html: properties.description }}
-                      />
-                    )}
+                <Popup className="centered-popup">
+                  <div className="custom-popup-content">
+                    <h3>{properties.name || `Zone ${index + 1}`}</h3>
+                    {properties.description && <div dangerouslySetInnerHTML={{ __html: properties.description }} />}
                   </div>
                 </Popup>
               </Polygon>

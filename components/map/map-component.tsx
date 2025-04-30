@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { MapContainer, TileLayer, useMap, Marker } from "react-leaflet"
+import { MapContainer, TileLayer, useMap, Marker, Circle } from "react-leaflet"
 import { Button } from "@/components/ui/button"
 import { toast } from "@/components/ui/use-toast"
 import { ToastAction } from "@/components/ui/toast"
@@ -127,24 +127,42 @@ function CustomZoomControl() {
   )
 }
 
-// User Location Component
-function UserLocationMarker({ position }: { position: [number, number] | null }) {
+// Enhanced User Location Marker Component
+function UserLocationMarker({ position, accuracy }: { position: [number, number] | null; accuracy: number | null }) {
   if (!position) return null
 
-  // Create a custom icon for the user location
+  // Create a custom icon for the user location with a pulsing effect
   const userIcon = L.divIcon({
     className: "user-location-marker",
     html: `
-      <div class="relative" role="img" aria-label="Your location">
-        <div class="absolute -left-2 -top-2 h-4 w-4 rounded-full bg-blue-500 opacity-30 animate-ping"></div>
-        <div class="absolute -left-1 -top-1 h-2 w-2 rounded-full bg-blue-500"></div>
+      <div class="user-location-pulse" role="img" aria-label="Your location">
+        <div class="user-location-ring"></div>
+        <div class="user-location-dot"></div>
       </div>
     `,
-    iconSize: [10, 10],
-    iconAnchor: [5, 5],
+    iconSize: [24, 24],
+    iconAnchor: [12, 12],
   })
 
-  return <Marker position={position} icon={userIcon} />
+  return (
+    <>
+      {/* Accuracy circle */}
+      {accuracy && (
+        <Circle
+          center={position}
+          radius={accuracy}
+          pathOptions={{
+            color: "#3b82f6",
+            fillColor: "#3b82f6",
+            fillOpacity: 0.15,
+            weight: 1,
+          }}
+        />
+      )}
+      {/* Position marker */}
+      <Marker position={position} icon={userIcon} />
+    </>
+  )
 }
 
 // Location Button Component
@@ -153,14 +171,23 @@ function LocationButton({
   onLocationFound,
 }: {
   translations: Translations
-  onLocationFound: (position: [number, number]) => void
+  onLocationFound: (position: [number, number], accuracy: number) => void
 }) {
   const map = useMap()
   const [loading, setLoading] = useState(false)
   const [isInEmbed, setIsInEmbed] = useState(false)
+  const [isTracking, setIsTracking] = useState(false)
+  const watchIdRef = useRef<number | null>(null)
 
   useEffect(() => {
     setIsInEmbed(isEmbedded())
+
+    // Cleanup function to stop watching location when component unmounts
+    return () => {
+      if (watchIdRef.current !== null) {
+        navigator.geolocation.clearWatch(watchIdRef.current)
+      }
+    }
   }, [])
 
   // Hide the location button when in an iframe to prevent permission issues
@@ -169,6 +196,18 @@ function LocationButton({
   }
 
   const handleClick = () => {
+    // If already tracking, stop tracking
+    if (isTracking && watchIdRef.current !== null) {
+      navigator.geolocation.clearWatch(watchIdRef.current)
+      watchIdRef.current = null
+      setIsTracking(false)
+      toast({
+        title: "Location tracking stopped",
+        description: "Your location is no longer being tracked.",
+      })
+      return
+    }
+
     setLoading(true)
 
     if (!navigator.geolocation) {
@@ -181,9 +220,10 @@ function LocationButton({
       return
     }
 
+    // First get current position
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        const { latitude, longitude } = position.coords
+        const { latitude, longitude, accuracy } = position.coords
         const userLocation: [number, number] = [latitude, longitude]
 
         // Check if the user's location is within Riga bounds
@@ -191,8 +231,32 @@ function LocationButton({
         const bounds = L.latLngBounds(RIGA_BOUNDS)
 
         if (bounds.contains(userLatLng)) {
-          map.flyTo(userLocation, 15)
-          onLocationFound(userLocation)
+          map.flyTo(userLocation, 16)
+          onLocationFound(userLocation, accuracy)
+
+          // Start watching position for updates
+          watchIdRef.current = navigator.geolocation.watchPosition(
+            (watchPosition) => {
+              const { latitude: watchLat, longitude: watchLng, accuracy: watchAccuracy } = watchPosition.coords
+              onLocationFound([watchLat, watchLng], watchAccuracy)
+            },
+            (error) => {
+              console.error("Error watching position:", error)
+            },
+            {
+              enableHighAccuracy: true,
+              maximumAge: 10000, // 10 seconds
+              timeout: 5000, // 5 seconds
+            },
+          )
+
+          setIsTracking(true)
+
+          // Show success toast
+          toast({
+            title: "Location found",
+            description: "Your location is now being tracked on the map.",
+          })
         } else {
           // If user is outside Riga, just center on Riga
           toast({
@@ -228,16 +292,23 @@ function LocationButton({
 
         setLoading(false)
       },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      },
     )
   }
 
   return (
     <Button
       onClick={handleClick}
-      className="absolute bottom-2 right-2 z-[1000] h-8 w-8 rounded-full bg-white/90 p-0 text-slate-800 shadow-md hover:bg-white"
+      className={`absolute bottom-2 right-2 z-[1000] h-8 w-8 rounded-full p-0 text-slate-800 shadow-md ${
+        isTracking ? "bg-blue-500 text-white hover:bg-blue-600" : "bg-white/90 hover:bg-white"
+      }`}
       disabled={loading}
       size="sm"
-      aria-label={translations.controls.myLocation}
+      aria-label={isTracking ? "Stop tracking location" : translations.controls.myLocation}
     >
       {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Compass className="h-4 w-4" />}
     </Button>
@@ -287,7 +358,7 @@ function MapUIControls({
   onDistanceChange: (distance: RouteDistance) => void
   onToggleLayer: (layer: keyof VisibleLayers) => void
   translations: Translations
-  onLocationFound: (position: [number, number]) => void
+  onLocationFound: (position: [number, number], accuracy: number) => void
 }) {
   return (
     <>
@@ -327,6 +398,7 @@ export default function MapComponent({
   const [isClient, setIsClient] = useState(false)
   const [kmlUrl, setKmlUrl] = useState<string>("")
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
+  const [locationAccuracy, setLocationAccuracy] = useState<number | null>(null)
 
   // Update KML URL when language or distance changes
   useEffect(() => {
@@ -358,8 +430,9 @@ export default function MapComponent({
     }
   }, [isClient])
 
-  const handleLocationFound = (position: [number, number]) => {
+  const handleLocationFound = (position: [number, number], accuracy: number) => {
     setUserLocation(position)
+    setLocationAccuracy(accuracy)
   }
 
   if (!isClient) {
@@ -404,7 +477,7 @@ export default function MapComponent({
         )}
 
         {/* User Location Marker */}
-        <UserLocationMarker position={userLocation} />
+        <UserLocationMarker position={userLocation} accuracy={locationAccuracy} />
 
         {/* Controls */}
         <MapUIControls
